@@ -1,0 +1,22 @@
+{
+    "name": "siteshop/mobilpay",
+    "description": "MobilPay.ro payment gateway implementation in Laravel 4",
+    "keywords": ["laravel", "mobilpay"],
+    "license": "Proprietary",
+    "authors": [
+        {
+            "name": "Marian Oancea",
+            "email": "contact@siteshop.ro"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "illuminate/support": "4.1.*"
+    },
+    "autoload": {
+        "psr-0": {
+            "Siteshop\\Mobilpay": "src/"
+        }
+    },
+    "minimum-stability": "stable"
+}
