@@ -11,5 +11,4 @@
 |
 */
 
-Route::get('/mobilpay', 'Siteshop\Mobilpay\Controllers\MobilpayController@index');
 Route::post('/mobilpay/confirm', 'Siteshop\Mobilpay\Controllers\MobilpayController@confirmation');

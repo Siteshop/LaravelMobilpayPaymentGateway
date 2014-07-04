@@ -4,12 +4,14 @@ class MobilpayController extends \BaseController {
 
 	public function index()
 	{
-		$response = \Mobilpay::makeResponse();
+		$response = \Status::first();
+
+		dump_exit(json_decode($response->data));
 
 		return \Response::view('mobilpay::response', $response, 200, ['Content-type' => 'application/xml']);
 	}
 
-	public function postConfirmation()
+	public function confirmation()
 	{
 		$response = \Mobilpay::makeResponse();
 
