@@ -1,5 +1,7 @@
 <?php namespace Siteshop\Mobilpay\Payment\Request;
 
+use Siteshop\Mobilpay\Payment\Address;
+
 /**
  * Class Notify
  * This class can be used for accessing payment info sent by mobilpay.ro in confirmation process
@@ -37,7 +39,7 @@ class Notify
 
     }
 
-    public function loadFromXml (DOMElement $elem)
+    public function loadFromXml (\DOMElement $elem)
     {
 
         $attr = $elem->attributes->getNamedItem('timestamp');
@@ -49,21 +51,21 @@ class Notify
         $attr = $elem->attributes->getNamedItem('crc');
         if ($attr == null)
         {
-            throw new Exception('Notify::loadFromXml failed; mandatory crc attribute missing', self::ERROR_LOAD_FROM_XML_CRC_ATTR_MISSING);
+            throw new \Exception('Notify::loadFromXml failed; mandatory crc attribute missing', self::ERROR_LOAD_FROM_XML_CRC_ATTR_MISSING);
         }
         $this->_crc = $attr->nodeValue;
 
         $elems = $elem->getElementsByTagName('action');
         if ($elems->length != 1)
         {
-            throw new Exception('Notify::loadFromXml failed; mandatory action attribute missing', self::ERROR_LOAD_FROM_XML_ACTION_ELEM_MISSING);
+            throw new \Exception('Notify::loadFromXml failed; mandatory action attribute missing', self::ERROR_LOAD_FROM_XML_ACTION_ELEM_MISSING);
         }
         $this->action = $elems->item(0)->nodeValue;
 
         $elems = $elem->getElementsByTagName('customer');
         if ($elems->length == 1)
         {
-            $this->customer = new Mobilpay_Payment_Address($elems->item(0));
+            $this->customer = new Address($elems->item(0));
         }
 
         $elems = $elem->getElementsByTagName('issuer');
@@ -175,7 +177,7 @@ class Notify
         $this->timestamp = isset($reqParams['mobilpay_refference_timestamp']) ? $reqParams['mobilpay_refference_timestamp'] : null;
     }
 
-    public function createXmlElement (DOMDocument $xmlDoc)
+    public function createXmlElement (\DOMDocument $xmlDoc)
     {
 
         $xmlNotifyElem = $xmlDoc->createElement('mobilpay');
@@ -193,7 +195,7 @@ class Notify
         $elem->nodeValue = $this->action;
         $xmlNotifyElem->appendChild($elem);
 
-        if ($this->customer instanceof Mobilpay_Payment_Address)
+        if ($this->customer instanceof Address)
         {
 
             $xmlNotifyElem->appendChild($this->customer->createXmlElement($xmlDoc, 'customer'));

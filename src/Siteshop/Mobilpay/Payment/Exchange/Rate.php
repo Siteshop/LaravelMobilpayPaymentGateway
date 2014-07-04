@@ -16,7 +16,7 @@ class Rate
 	public $currency	= null;
 	public $value		= null;
 
-	public function __construct(DOMNode $elem = null)
+	public function __construct(\DOMNode $elem = null)
 	{
 		if($elem == null)
 		{
@@ -24,28 +24,28 @@ class Rate
 		}
 	}
 
-	protected function loadFromXml(DOMNode $elem)
+	protected function loadFromXml(\DOMNode $elem)
 	{
 		$attr = $elem->attributes->getNamedItem('currency');
 		if($attr == null)
 		{
-			throw new Exception('Rate::loadFromXml', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
+			throw new \Exception('Rate::loadFromXml', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
 		}
 		$this->currency = $attr->nodeValue;
 		$this->value	= $elem->nodeValue;
 	}
 
-	public function createXmlElement(DOMDocument $xmlDoc)
+	public function createXmlElement(\DOMDocument $xmlDoc)
 	{
-		if(!($xmlDoc instanceof DOMDocument))
+		if(!($xmlDoc instanceof \DOMDocument))
 		{
-			throw new Exception('', self::ERROR_INVALID_PARAMETER);
+			throw new \Exception('', self::ERROR_INVALID_PARAMETER);
 		}
 
 
 		if($this->currency == null || $this->value == null)
 		{
-			throw new Exception('Invalid property', self::ERROR_INVALID_PROPERTY);
+			throw new \Exception('Invalid property', self::ERROR_INVALID_PROPERTY);
 		}
 
 		$xmlRateElem = $xmlDoc->createElement('rate');

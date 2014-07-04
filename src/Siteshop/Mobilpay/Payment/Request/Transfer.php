@@ -9,7 +9,7 @@
  * @version 1.0
  *
  */
-class Transfer extends Abstract
+class Transfer extends RequestAbstract
 {
     const ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING = 0x30000001;
 
@@ -22,7 +22,7 @@ class Transfer extends Abstract
         $this->type = self::PAYMENT_TYPE_TRANSFER;
     }
 
-    protected function _loadFromXml (DOMElement $elem)
+    protected function _loadFromXml (\DOMElement $elem)
     {
 
         parent::_parseFromXml($elem);
@@ -32,7 +32,7 @@ class Transfer extends Abstract
 
         if ($elems->length != 1)
         {
-            throw new Exception('Transfer::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
+            throw new \Exception('Transfer::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
         }
 
         $this->invoice = new Invoice($elems->item(0));
@@ -44,10 +44,10 @@ class Transfer extends Abstract
 
         if (is_null($this->signature) || is_null($this->orderId) || ! ($this->invoice instanceof Invoice))
         {
-            throw new Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
+            throw new \Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
         }
 
-        $this->_xmlDoc = new DOMDocument('1.0', 'utf-8');
+        $this->_xmlDoc = new \DOMDocument('1.0', 'utf-8');
         $rootElem = $this->_xmlDoc->createElement('order');
 
         //set payment type attribute

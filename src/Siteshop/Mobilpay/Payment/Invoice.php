@@ -34,7 +34,7 @@ class Invoice
 	protected $items			= array();
 	protected $exchangeRates	= array();
 
-	public function __construct(DOMNode $elem = null)
+	public function __construct(\DOMNode $elem = null)
 	{
 		if($elem != null)
 		{
@@ -42,12 +42,12 @@ class Invoice
 		}
 	}
 
-	protected function loadFromXml(DOMNode $elem)
+	protected function loadFromXml(\DOMNode $elem)
 	{
 		$attr = $elem->attributes->getNamedItem('currency');
 		if($attr == null)
 		{
-			throw new Exception('Invoice::loadFromXml failed; currency attribute missing', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
+			throw new \Exception('Invoice::loadFromXml failed; currency attribute missing', self::ERROR_LOAD_FROM_XML_CURRENCY_ATTR_MISSING);
 		}
 		$this->currency = $attr->nodeValue;
 
@@ -140,7 +140,7 @@ class Invoice
 						$this->items[] = $objItem;
 						$amount += $objItem->getTotalAmount();
 					}
-					catch (Exception $e)
+					catch (\Exception $e)
 					{
 						$e = $e;
 						continue;
@@ -163,7 +163,7 @@ class Invoice
 					$objRate = new Exchange\Rate($rateElem);
 					$this->exchangeRates[] = $objRate;
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 					continue;
@@ -172,18 +172,18 @@ class Invoice
 		}
 	}
 
-	public function createXmlElement(DOMDocument $xmlDoc)
+	public function createXmlElement(\DOMDocument $xmlDoc)
 	{
-		if(!($xmlDoc instanceof DOMDocument))
+		if(!($xmlDoc instanceof \DOMDocument))
 		{
-			throw new Exception('', self::ERROR_INVALID_PARAMETER);
+			throw new \Exception('', self::ERROR_INVALID_PARAMETER);
 		}
 
 		$xmlInvElem = $xmlDoc->createElement('invoice');
 
 		if($this->currency == null)
 		{
-			throw new Exception('Invalid currency', self::ERROR_INVALID_CURRENCY);
+			throw new \Exception('Invalid currency', self::ERROR_INVALID_CURRENCY);
 		}
 
 		$xmlAttr 			= $xmlDoc->createAttribute('currency');
@@ -267,7 +267,7 @@ class Invoice
 					}
 					$xmlAddr->appendChild($xmlElem);
 				}
-				catch(Exception $e)
+				catch(\Exception $e)
 				{
 					$e = $e;
 				}
@@ -283,7 +283,7 @@ class Invoice
 					}
 					$xmlAddr->appendChild($xmlElem);
 				}
-				catch(Exception $e)
+				catch(\Exception $e)
 				{
 					$e = $e;
 				}
@@ -312,7 +312,7 @@ class Invoice
 					}
 					$xmlItems->appendChild($xmlItem);
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 				}
@@ -341,7 +341,7 @@ class Invoice
 					}
 					$xmlRates->appendChild($xmlRate);
 				}
-				catch (Exception $e)
+				catch (\Exception $e)
 				{
 					$e = $e;
 				}

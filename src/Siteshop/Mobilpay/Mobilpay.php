@@ -1,37 +1,157 @@
 <?php namespace Siteshop\Mobilpay;
 
+use Illuminate\Support\Collection;
+
+use Siteshop\Mobilpay\Payment\Invoice;
+use Siteshop\Mobilpay\Payment\Address;
+use Siteshop\Mobilpay\Payment\Request\RequestAbstract;
+use Siteshop\Mobilpay\Payment\Request\Card;
+use Siteshop\Mobilpay\Payment\Request\Transfer;
+
 class Mobilpay {
 
-	protected $environment;
-	protected $sandbox_url;
-	protected $payment_url;
-	protected $cert_path;
-	protected $signature;
-	protected $confirm_url;
-	protected $return_url;
+	protected $settings;
 
-	public function __construct($config) {
-		$this->environment = $config['environment'];
-		$this->sandbox_url = $config['sandbox_url'];
-		$this->payment_url = $config['payment_url'];
-		$this->cert_path = $config['cert_path'];
-		$this->signature = $config['signature'];
-		$this->confirm_url = $config['confirm_url'];
-		$this->return_url = $config['return_url'];
+	protected $actions = [
+		'confirmed',
+		'confirmed_pending',
+		'paid_pending',
+		'paid',
+		'canceled',
+		'credit'
+	];
+
+	public function __construct($config)
+	{
+		$this->settings = new Collection($config);
 	}
 
-	public function makePayment($orderId, $currency, $amount, $details, $billing, $shipping)
+	public function makePayment($type, $orderId, $amount, $currency = 'RON', $details = '', array $billing = array(), array $shipping = array(), $installments = '2,3')
 	{
-		$request = new Card();
-		$request->signature = $this->signature;
-		$request->orderId = $orderId;
-		$request->confirmUrl = $this->confirm_url;
-		$request->returnUrl = $this->return_url;
+		$request = $this->makeRequest($type, $orderId);
 
 		$request->invoice = new Invoice();
+		$request->invoice->currency = $currency;
+		$request->invoice->amount = doubleval($amount);
+		$request->invoice->details = $details;
+		$request->invoice->installments = $installments;
+		$request->invoice->setBillingAddress($this->makeAddress($billing));
+		$request->invoice->setShippingAddress($this->makeAddress($shipping));
 
-		$request->encrypt($this->cert_path);
+		$request->encrypt($this->getPublicCert());
 
 		return $request;
+	}
+
+	public function getPaymentUrl($type)
+	{
+		return $this->settings->get($this->settings->get('environment') == 'sandbox' ? 'sandbox_url' : 'payment_url') . ($type != 'card' ? '/' . $type : '');
+	}
+
+	public function makeResponse()
+	{
+		$errorType = RequestAbstract::CONFIRM_ERROR_TYPE_NONE;
+		$errorCode = 0;
+		$errorMessage = '';
+
+		if(\Input::has('env_key') && \Input::has('data'))
+		{
+			try
+			{
+				$response = $this->getResponse();
+
+				if(in_array($response->notify->action, $this->actions))
+				{
+					$errorMessage = $response->notify->getCrc();
+
+					\Event::fire('mobilpay.confirmation', compact('response', 'errorType', 'errorCode', 'errorMessage'));
+				}
+				else
+				{
+					$errorType = RequestAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
+		            $errorCode = RequestAbstract::ERROR_CONFIRM_INVALID_ACTION;
+		            $errorMessage = 'mobilpay_refference_action paramaters is invalid';
+				}
+			}
+			catch(\Exception $e)
+			{
+				$errorType = RequestAbstract::CONFIRM_ERROR_TYPE_TEMPORARY;
+				$errorCode = $e->getCode();
+				$errorMessage = $e->getMessage();
+			}
+		}
+		else
+		{
+			$errorType = RequestAbstract::CONFIRM_ERROR_TYPE_PERMANENT;
+			$errorCode = RequestAbstract::ERROR_CONFIRM_INVALID_POST_PARAMETERS;
+			$errorMessage = 'Invalid request method for payment confirmation';
+		}
+
+		return compact('errorType', 'errorCode', 'errorMessage');
+	}
+
+	protected function getResponse()
+	{
+		$response = RequestAbstract::factoryFromEncrypted(\Input::get('env_key'), \Input::get('data'), $this->getPrivateKey());
+
+		return $response;
+	}
+
+	protected function makeRequest($type, $orderId)
+	{
+		switch ($type) {
+			case 'card':
+				$request = new Card();
+				break;
+
+			case 'transfer':
+				$request = new Transfer();
+				break;
+
+			default:
+				$request = new Card();
+				break;
+		}
+
+		$request->orderId = $orderId;
+		$request->signature = $this->settings->get('signature');
+		$request->confirmUrl = url($this->settings->get('confirm_url'));
+		$request->returnUrl = url($this->settings->get('return_url'));
+
+		return $request;
+	}
+
+	protected function makeAddress(array $info = array())
+	{
+		$info = new Collection($info);
+
+		$address = new Address();
+
+		$address->type = $info->get('type');
+		$address->firstName = $info->get('firstName');
+		$address->lastName = $info->get('lastName');
+		$address->fiscalNumber = $info->get('fiscalNumber');
+		$address->identityNumber = $info->get('identityNumber');
+		$address->country = $info->get('country');
+		$address->county = $info->get('county');
+		$address->city = $info->get('city');
+		$address->zipCode = $info->get('zipCode');
+		$address->address = $info->get('address');
+		$address->email = $info->get('email');
+		$address->mobilePhone = $info->get('mobilePhone');
+		$address->bank = $info->get('bank');
+		$address->iban = $info->get('iban');
+
+		return $address;
+	}
+
+	protected function getPublicCert()
+	{
+		return $this->settings->get('certificates_path') . $this->settings->get('public_cer');
+	}
+
+	protected function getPrivateKey()
+	{
+		return $this->settings->get('certificates_path') . $this->settings->get('private_key');
 	}
 }

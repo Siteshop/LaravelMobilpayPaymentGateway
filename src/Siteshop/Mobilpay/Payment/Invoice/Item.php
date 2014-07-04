@@ -26,7 +26,7 @@ class Item
 	public $price		= null;
 	public $vat			= null;
 
-	public function __construct(DOMNode $elem = null)
+	public function __construct(\DOMNode $elem = null)
 	{
 		if($elem != null)
 		{
@@ -34,19 +34,19 @@ class Item
 		}
 	}
 
-	protected function loadFromXml(DOMNode $elem)
+	protected function loadFromXml(\DOMNode $elem)
 	{
 		$elems = $elem->getElementsByTagName('code');
 		if($elems->length != 1)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid code element.', self::ERROR_LOAD_FROM_XML_CODE_ELEM_MISSING);
+			throw new \Exception('Item::loadFromXml failed! Invalid code element.', self::ERROR_LOAD_FROM_XML_CODE_ELEM_MISSING);
 		}
 		$this->code = urldecode($elems->item(0)->nodeValue);
 
 		$elems = $elem->getElementsByTagName('name');
 		if($elems->length != 1)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid name element.', self::ERROR_LOAD_FROM_XML_NAME_ELEM_MISSING);
+			throw new \Exception('Item::loadFromXml failed! Invalid name element.', self::ERROR_LOAD_FROM_XML_NAME_ELEM_MISSING);
 		}
 		$this->name = urldecode($elems->item(0)->nodeValue);
 
@@ -59,47 +59,47 @@ class Item
 		$elems = $elem->getElementsByTagName('quantity');
 		if($elems->length != 1)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid quantity element.', self::ERROR_LOAD_FROM_XML_QUANTITY_ELEM_MISSING);
+			throw new \Exception('Item::loadFromXml failed! Invalid quantity element.', self::ERROR_LOAD_FROM_XML_QUANTITY_ELEM_MISSING);
 		}
 		$this->quantity = doubleval(urldecode($elems->item(0)->nodeValue));
 		if($this->quantity == 0)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid quantity value=' . $this->quantity, self::ERROR_LOAD_FROM_XML_QUANTITY_ELEM_EMPTY);
+			throw new \Exception('Item::loadFromXml failed! Invalid quantity value=' . $this->quantity, self::ERROR_LOAD_FROM_XML_QUANTITY_ELEM_EMPTY);
 		}
 
 		$elems = $elem->getElementsByTagName('price');
 		if($elems->length != 1)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid price element.', self::ERROR_LOAD_FROM_XML_PRICE_ELEM_MISSING);
+			throw new \Exception('Item::loadFromXml failed! Invalid price element.', self::ERROR_LOAD_FROM_XML_PRICE_ELEM_MISSING);
 		}
 		$this->price = doubleval(urldecode($elems->item(0)->nodeValue));
 		if($this->price == 0)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid price value=' . $this->price, self::ERROR_LOAD_FROM_XML_PRICE_ELEM_EMPTY);
+			throw new \Exception('Item::loadFromXml failed! Invalid price value=' . $this->price, self::ERROR_LOAD_FROM_XML_PRICE_ELEM_EMPTY);
 		}
 
 		$elems = $elem->getElementsByTagName('vat');
 		if($elems->length != 1)
 		{
-			throw new Exception('Item::loadFromXml failed! Invalid vat element.', self::ERROR_LOAD_FROM_XML_VAT_ELEM_MISSING);
+			throw new \Exception('Item::loadFromXml failed! Invalid vat element.', self::ERROR_LOAD_FROM_XML_VAT_ELEM_MISSING);
 		}
 		$this->vat = doubleval(urldecode($elems->item(0)->nodeValue));
 
 		return $this;
 	}
 
-	public function createXmlElement(DOMDocument $xmlDoc)
+	public function createXmlElement(\DOMDocument $xmlDoc)
 	{
-		if(!($xmlDoc instanceof DOMDocument))
+		if(!($xmlDoc instanceof \DOMDocument))
 		{
-			throw new Exception('', self::ERROR_INVALID_PARAMETER);
+			throw new \Exception('', self::ERROR_INVALID_PARAMETER);
 		}
 
 		$xmlItemElem = $xmlDoc->createElement('item');
 
 		if($this->code == null || $this->name == null || $this->measurment == null || $this->quantity == null || $this->price == null || $this->vat == null)
 		{
-			throw new Exception('Invalid property', self::ERROR_INVALID_PROPERTY);
+			throw new \Exception('Invalid property', self::ERROR_INVALID_PROPERTY);
 		}
 
 		$xmlElem 			= $xmlDoc->createElement('code');

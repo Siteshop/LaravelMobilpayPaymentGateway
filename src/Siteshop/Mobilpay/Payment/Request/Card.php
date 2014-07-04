@@ -10,7 +10,7 @@ use Siteshop\Mobilpay\Payment\Invoice;
  * @version 1.0
  *
  */
-class Card extends Abstract
+class Card extends RequestAbstract
 {
 	const ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING	= 0x30000001;
 
@@ -22,7 +22,7 @@ class Card extends Abstract
 		$this->type = self::PAYMENT_TYPE_CARD;
 	}
 
-	protected function _loadFromXml(DOMElement $elem)
+	protected function _loadFromXml(\DOMElement $elem)
 	{
 		parent::_parseFromXml($elem);
 
@@ -30,7 +30,7 @@ class Card extends Abstract
 		$elems = $elem->getElementsByTagName('invoice');
 		if($elems->length != 1)
 		{
-			throw new Exception('Card::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
+			throw new \Exception('Card::loadFromXml failed; invoice element is missing', self::ERROR_LOAD_FROM_XML_ORDER_INVOICE_ELEM_MISSING);
 		}
 
 		$this->invoice = new Invoice($elems->item(0));
@@ -42,10 +42,10 @@ class Card extends Abstract
 	{
 		if(is_null($this->signature) || is_null($this->orderId) || !($this->invoice instanceof Invoice))
 		{
-			throw new Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
+			throw new \Exception('One or more mandatory properties are invalid!', self::ERROR_PREPARE_MANDATORY_PROPERTIES_UNSET);
 		}
 
-		$this->_xmlDoc 		= new DOMDocument('1.0', 'utf-8');
+		$this->_xmlDoc 		= new \DOMDocument('1.0', 'utf-8');
 		$rootElem 			= $this->_xmlDoc->createElement('order');
 
 		//set payment type attribute

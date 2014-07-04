@@ -19,6 +19,7 @@ class MobilpayServiceProvider extends ServiceProvider {
     public function boot()
     {
         $this->package('siteshop/mobilpay');
+        include __DIR__ . '/../../routes.php';
     }
 
     /**
@@ -28,8 +29,9 @@ class MobilpayServiceProvider extends ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['mobilpay'] = $this->app->share(function($app){
-			return new Mobilpay($app['config']->get('siteshop/mobilpay::settings'));
+		$this->app['mobilpay'] = $this->app->share(function($app)
+		{
+			return new Mobilpay($app['config']->get('mobilpay::settings'));
 		});
 	}
 
