@@ -1,6 +1,9 @@
 /vendor
 /src/certificates/private.key
 /src/certificates/public.cer
+/src/config/config.php
 composer.phar
 composer.lock
 .DS_Store
+
+src/config/config.php
